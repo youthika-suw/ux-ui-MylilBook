@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyLilBook - คลังหนังสือของฉัน & Reading Tracker</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sage-primary': '#8EAF9D',
+                        'sage-hover': '#749784',
+                        'sage-light': '#E2ECE5',
+                        'sage-dark': '#4A6B59',
+                        'mint-bg': '#F4F8F5',
+                        'dark-slate': '#2C3E35',
+                        'muted-green': '#6C7D73',
+                        'border-sage': '#E1E8E3',
+                        'gold-star': '#F5A623'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Sarabun', 'Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --bg-main: #FFFFFF;
+            --bg-subtle: #F4F8F5;
+            --primary: #8EAF9D;
+            --primary-hover: #749784;
+            --primary-light: #E2ECE5;
+            --primary-dark: #4A6B59;
+            --text-main: #2C3E35;
+            --text-muted: #6C7D73;
+            --border-color: #E1E8E3;
+            --shadow-sm: 0 2px 8px rgba(44, 62, 53, 0.04);
+            --shadow-md: 0 6px 18px rgba(44, 62, 53, 0.08);
+            --font-sans: 'Sarabun', 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-subtle);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4F8F5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C4D6CB;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8EAF9D;
+        }
+
+        .nav-link.active {
+            color: var(--primary-dark);
+            background-color: var(--primary-light);
+            font-weight: 700;
+        }
+
+        .book-card {
+            transition: all 0.25s ease;
+        }
+        .book-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal {
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .modal.hidden-modal {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Top Desktop Header Navigation -->
+    <header class="bg-white border-b border-border-sage sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- App Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 rounded-xl bg-sage-light flex items-center justify-center text-sage-dark text-lg font-bold shadow-sm">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                        <span class="font-serif text-xl font-bold tracking-tight text-dark-slate block leading-none">MyLilBook</span>
+                        <span class="text-[11px] text-muted-green font-medium">Personal Library Tracker</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Bar -->
+                <nav class="hidden md:flex items-center space-x-2">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-link active px-4 py-2 rounded-xl text-sm font-semibold text-muted-green hover:text-dark-slate transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-house text-xs"></i> หน้าแรก
+                    </button>
+                    <button onclick="switchTab('library')" id="nav-library" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-muted-green hover:text-dark-slate transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-book text-xs"></i> คลังหนังสือ
+                    </button>
+                    <button onclick="switchTab('tracker')" id="nav-tracker" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-muted-green hover:text-dark-slate transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-[#8EAF9D] fa-stopwatch text-xs"></i> บันทึกการอ่าน
+                    </button>
+                    <button onclick="switchTab('achievements')" id="nav-achievements" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-muted-green hover:text-dark-slate transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-xs"></i> ความสำเร็จ
+                    </button>
+                </nav>
+
+                <!-- User Controls -->
+                <div class="flex items-center gap-3">
+                    <button onclick="openAddBookModal()" class="hidden sm:inline-flex items-center gap-2 bg-sage-primary hover:bg-sage-hover text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+                        <i class="fa-solid fa-plus"></i> เพิ่มหนังสือ
+                    </button>
+
+                    <!-- Notification & Avatar -->
+                    <button class="w-9 h-9 rounded-full bg-mint-bg flex items-center justify-center text-muted-green hover:text-dark-slate relative">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="w-2 h-2 rounded-full bg-red-400 absolute top-2 right-2"></span>
+                    </button>
+                    <div class="flex items-center gap-2 pl-2 border-l border-border-sage">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" alt="Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-sage-light">
+                        <span class="hidden lg:block text-xs font-bold text-dark-slate">พิมพ์ 🍃</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-16 md:mb-8">
+
+        <!-- ================= SECTION 1: หน้าแรก (DASHBOARD - IMAGE 2) ================= -->
+        <section id="view-home" class="space-y-6">
+            <!-- Header Greeting -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-dark-slate flex items-center gap-2">
+                        สวัสดี, พิมพ์ 🌿
+                    </h1>
+                    <p class="text-xs text-muted-green mt-1">วันนี้วันสบายๆ มาปล่อยใจไปกับเรื่องราวในหน้ากระดาษกันนะ</p>
+                </div>
+                <span class="bg-sage-light text-sage-dark text-xs font-bold px-3 py-1.5 rounded-full border border-border-sage hidden sm:inline-block">
+                    🌱 มุมโปรดของคุณ
+                </span>
+            </div>
+
+            <!-- Reading Goal Year Card -->
+            <div class="bg-white rounded-2xl p-6 border border-border-sage shadow-sm space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs text-muted-green font-medium">เป้าหมายประจำปี</span>
+                        <h2 class="text-lg font-bold text-dark-slate">เป้าหมายการอ่านปี 2025</h2>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-sage-light flex items-center justify-center text-sage-dark text-lg">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-baseline">
+                    <span class="font-serif text-3xl font-bold text-dark-slate">18 <span class="text-sm font-sans text-muted-green font-normal">/ 25 เล่ม</span></span>
+                    <span class="text-lg font-bold text-sage-dark">72%</span>
+                </div>
+
+                <div class="w-full h-3 bg-sage-light rounded-full overflow-hidden">
+                    <div class="bg-sage-dark h-full rounded-full transition-all duration-500" style="width: 72%;"></div>
+                </div>
+
+                <div class="flex justify-between text-xs text-muted-green">
+                    <span><i class="fa-solid fa-check text-sage-primary mr-1"></i> อีกเพียง 7 เล่มเพื่อบรรลุเป้าหมาย</span>
+                    <span>เหลืออีก 4 เดือน</span>
+                </div>
+            </div>
+
+            <!-- Stats 3 Cards Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-mint-bg text-sage-dark flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-regular fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] text-muted-green font-medium block">อ่านจบปีนี้</span>
+                        <span class="font-bold text-xl text-dark-slate">18 เล่ม</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-mint-bg text-amber-600 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] text-muted-green font-medium block">อ่านต่อเนื่อง</span>
+                        <span class="font-bold text-xl text-dark-slate">14 วัน</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-mint-bg text-sage-dark flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] text-muted-green font-medium block">หน้าที่อ่าน</span>
+                        <span class="font-bold text-xl text-dark-slate">4,520 หน้า</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Currently Reading Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Currently Reading Featured Box -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-dark-slate flex items-center gap-2">
+                            <i class="fa-solid fa-book-reader text-sage-primary"></i> กำลังอ่านอยู่
+                        </h2>
+                        <button onclick="switchTab('library')" class="text-xs font-semibold text-sage-dark hover:underline">
+                            ดูทั้งหมด (2) &gt;
+                        </button>
+                    </div>
+
+                    <!-- Main Book Card -->
+                    <div class="bg-white p-6 rounded-2xl border border-border-sage shadow-sm space-y-5">
+                        <div class="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" alt="Book Cover" class="w-28 h-40 object-cover rounded-xl shadow border border-border-sage shrink-0">
+                            <div class="space-y-2 flex-grow text-center sm:text-left">
+                                <span class="inline-block px-3 py-1 rounded-full bg-sage-light text-sage-dark text-[11px] font-bold">วรรณกรรมแปล</span>
+                                <h3 class="text-xl font-bold text-dark-slate leading-snug">เมื่อแมวตัวนั้นหายไปจากโลกนี้</h3>
+                                <p class="text-xs text-muted-green">เก็นกิ คาวามูระ</p>
+
+                                <div class="space-y-1.5 pt-2">
+                                    <div class="flex justify-between text-xs font-medium">
+                                        <span class="text-muted-green">หน้า 142 จาก 215</span>
+                                        <span class="text-sage-dark font-bold">66%</span>
+                                    </div>
+                                    <div class="w-full h-2.5 bg-sage-light rounded-full overflow-hidden">
+                                        <div class="bg-sage-dark h-full rounded-full" style="width: 66%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="switchTab('tracker')" class="bg-sage-dark hover:bg-sage-hover text-white text-xs font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-pen-to-square"></i> อัปเดตหน้าอ่าน
+                            </button>
+                            <button onclick="switchTab('tracker')" class="bg-white hover:bg-mint-bg text-sage-dark border border-border-sage text-xs font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-clock"></i> เริ่มจับเวลาอ่าน
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Reading Quick Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-border-sage shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=150" alt="Secondary Book" class="w-10 h-12 object-cover rounded-lg">
+                            <div>
+                                <h4 class="text-xs font-bold text-dark-slate">โต๊ะโตะจัง เด็กหญิงข้างหน้าต่าง</h4>
+                                <div class="w-32 h-1.5 bg-sage-light rounded-full overflow-hidden mt-1">
+                                    <div class="bg-sage-primary h-full rounded-full" style="width: 35%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-sage-dark">35%</span>
+                    </div>
+                </div>
+
+                <!-- Right Side: Quote & Recent Feed -->
+                <div class="space-y-6">
+                    <!-- Daily Quote Box -->
+                    <div class="bg-mint-bg p-6 rounded-2xl border border-border-sage space-y-3 relative overflow-hidden">
+                        <span class="text-4xl text-sage-primary/30 font-serif absolute -top-2 left-3">“</span>
+                        <span class="text-xs font-bold text-sage-dark block">คำคมสร้างแรงบันดาลใจประจำวัน</span>
+                        <p class="text-sm font-semibold text-dark-slate leading-relaxed">
+                            “หนังสือคือความฝันที่คุณถือไว้ในมือ”
+                        </p>
+                        <p class="text-xs text-muted-green text-right font-medium">— นีล เกแมน (Neil Gaiman)</p>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-border-sage pb-3">
+                            <h3 class="text-sm font-bold text-dark-slate">กิจกรรมล่าสุด</h3>
+                            <span class="text-[11px] text-muted-green">สัปดาห์นี้</span>
+                        </div>
+
+                        <div class="space-y-4 text-xs">
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-sage-light text-sage-dark flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-dark-slate">อ่านเพิ่ม 38 หน้า</p>
+                                    <p class="text-[11px] text-muted-green">เมื่อแมวตัวนั้นหายไปจากโลกนี้ • เวลาอ่าน 35 นาที</p>
+                                    <span class="text-[10px] text-muted-green block mt-0.5">เมื่อวานนี้</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-dark-slate">อ่านจบเล่มสำเร็จ 🎯</p>
+                                    <p class="text-[11px] text-muted-green">ปาฏิหาริย์ร้านชำของคุณนามิยะ • บันทึกดาว 5/5</p>
+                                    <span class="text-[10px] text-muted-green block mt-0.5">2 วันที่แล้ว</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: คลังหนังสือของฉัน (LIBRARY - IMAGE 1) ================= -->
+        <section id="view-library" class="space-y-6 hidden">
+            <!-- Top Library Banner -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-border-sage shadow-sm">
+                <div>
+                    <span class="text-xs text-muted-green font-medium"><i class="fa-solid fa-book-bookmark text-sage-primary"></i> ห้องสมุดส่วนตัว</span>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-dark-slate flex items-center gap-2">
+                        คลังหนังสือของฉัน <span class="text-sm font-normal text-muted-green">(42 เล่ม)</span>
+                    </h1>
+                </div>
+                <button onclick="openAddBookModal()" class="bg-sage-dark hover:bg-sage-hover text-white text-xs font-bold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> เพิ่มหนังสือใหม่
+                </button>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="bg-white p-4 rounded-2xl border border-border-sage shadow-sm space-y-4">
+                <!-- Search Bar -->
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-muted-green text-sm"></i>
+                    <input type="text" id="lib-search" oninput="renderLibraryGrid()" placeholder="ค้นหาชื่อหนังสือ, ผู้แต่ง หรือ ISBN..." class="w-full pl-11 pr-10 py-3 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none focus:border-sage-primary">
+                    <i class="fa-solid fa-xmark absolute right-4 top-1/2 -translate-y-1/2 text-muted-green cursor-pointer" onclick="document.getElementById('lib-search').value=''; renderLibraryGrid();"></i>
+                </div>
+
+                <!-- Status Filter Pills -->
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="filterLibStatus('ALL')" id="pill-ALL" class="lib-pill bg-sage-dark text-white px-4 py-2 rounded-xl text-xs font-bold">ทั้งหมด 42</button>
+                        <button onclick="filterLibStatus('Reading')" id="pill-Reading" class="lib-pill bg-mint-bg text-muted-green hover:text-dark-slate px-4 py-2 rounded-xl text-xs font-bold border border-border-sage">กำลังอ่าน 2</button>
+                        <button onclick="filterLibStatus('Want to Read')" id="pill-Want to Read" class="lib-pill bg-mint-bg text-muted-green hover:text-dark-slate px-4 py-2 rounded-xl text-xs font-bold border border-border-sage">อยากอ่าน 18</button>
+                        <button onclick="filterLibStatus('Completed')" id="pill-Completed" class="lib-pill bg-mint-bg text-muted-green hover:text-dark-slate px-4 py-2 rounded-xl text-xs font-bold border border-border-sage">อ่านจบแล้ว 22</button>
+                    </div>
+
+                    <!-- Dropdowns -->
+                    <div class="flex items-center gap-2">
+                        <select id="select-genre" onchange="renderLibraryGrid()" class="bg-mint-bg border border-border-sage text-dark-slate text-xs font-medium rounded-xl px-3 py-2 focus:outline-none">
+                            <option value="ALL">หมวดหมู่: ทั้งหมด</option>
+                            <option value="วรรณกรรมแปล">วรรณกรรมแปล</option>
+                            <option value="คลาสสิก">คลาสสิก</option>
+                            <option value="พัฒนาตนเอง">พัฒนาตนเอง</option>
+                        </select>
+                        <select class="bg-mint-bg border border-border-sage text-dark-slate text-xs font-medium rounded-xl px-3 py-2 focus:outline-none">
+                            <option>เรียงตาม: ล่าสุด</option>
+                            <option>เรียงตาม: คะแนน</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Library Books Grid -->
+            <div id="library-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript Dynamic Content matching Image 1 -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 3: บันทึกการอ่าน (TRACKER - IMAGE 4) ================= -->
+        <section id="view-tracker" class="space-y-6 hidden">
+            <!-- Top Tracker Banner -->
+            <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-border-sage shadow-sm">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-dark-slate">บันทึกการอ่าน (Reading Tracker)</h1>
+                    <p class="text-xs text-muted-green mt-1">สะสมช่วงเวลาดีๆ ที่ได้เพลิดเพลินไปกับหนังสือ</p>
+                </div>
+                <div class="bg-mint-bg px-4 py-2 rounded-xl border border-border-sage text-xs font-bold text-sage-dark">
+                    📅 มกราคม 2025
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Log Form & Analytics -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Daily Reading Log Card -->
+                    <div class="bg-white p-6 rounded-2xl border border-border-sage shadow-sm space-y-5">
+                        <div class="flex justify-between items-center border-b border-border-sage pb-3">
+                            <h2 class="text-lg font-bold text-dark-slate flex items-center gap-2">
+                                📖 บันทึกการอ่านวันนี้
+                            </h2>
+                            <span class="text-xs bg-sage-light text-sage-dark font-bold px-3 py-1 rounded-full">กำลังอ่าน</span>
+                        </div>
+
+                        <!-- Book Selection -->
+                        <div>
+                            <label class="block text-xs font-bold text-dark-slate mb-1">หนังสือปัจจุบัน</label>
+                            <select id="tracker-book-select" class="w-full p-3 rounded-xl border border-border-sage bg-mint-bg text-xs font-bold text-dark-slate focus:outline-none">
+                                <option value="1">เมื่อแมวตัวนั้นหายไปจากโลกนี้ (หน้า 142/215)</option>
+                                <option value="2">โต๊ะโตะจัง เด็กหญิงข้างหน้าต่าง (หน้า 84/240)</option>
+                            </select>
+                        </div>
+
+                        <!-- Page Stepper Controls -->
+                        <div>
+                            <label class="block text-xs font-bold text-dark-slate mb-1">อ่านถึงหน้าที่: <span class="text-muted-green font-normal">(จากทั้งหมด 215 หน้า)</span></label>
+                            <div class="flex items-center gap-3">
+                                <button onclick="adjustPage(-1)" class="w-12 h-12 rounded-xl bg-sage-light text-sage-dark text-xl font-bold flex items-center justify-center hover:bg-sage-primary hover:text-white transition-all">-</button>
+                                <input type="number" id="tracker-page-input" value="142" class="flex-grow text-center py-3 text-lg font-bold rounded-xl border border-border-sage bg-mint-bg text-dark-slate focus:outline-none">
+                                <button onclick="adjustPage(1)" class="w-12 h-12 rounded-xl bg-sage-light text-sage-dark text-xl font-bold flex items-center justify-center hover:bg-sage-primary hover:text-white transition-all">+</button>
+                                <span class="bg-sage-light text-sage-dark text-xs font-bold px-3 py-3 rounded-xl border border-border-sage whitespace-nowrap">+25 หน้า</span>
+                            </div>
+                        </div>
+
+                        <!-- Time Selector -->
+                        <div>
+                            <label class="block text-xs font-bold text-dark-slate mb-1">⏰ เวลาที่ใช้ในการอ่าน:</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button class="time-btn py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs font-bold text-dark-slate hover:bg-sage-light active">15 นาที</button>
+                                <button class="time-btn py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs font-bold text-dark-slate hover:bg-sage-light">30 นาที</button>
+                                <button class="time-btn py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs font-bold text-dark-slate hover:bg-sage-light">45 นาที</button>
+                                <button class="time-btn py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs font-bold text-dark-slate hover:bg-sage-light">60 นาที</button>
+                            </div>
+                        </div>
+
+                        <!-- Notes Area -->
+                        <div>
+                            <label class="block text-xs font-bold text-dark-slate mb-1">💭 บันทึกความรู้สึก / โน๊ตสั้นๆ:</label>
+                            <textarea id="tracker-note" rows="3" placeholder="ฉากที่ประทับใจมาก ข้อคิดเรื่องการมีอยู่ของสิ่งรอบตัว..." class="w-full p-3 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none"></textarea>
+                        </div>
+
+                        <button onclick="saveTrackerLog()" class="w-full py-3.5 rounded-xl bg-sage-dark hover:bg-sage-hover text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> บันทึกความคืบหน้า
+                        </button>
+                    </div>
+
+                    <!-- Statistics & Behavior -->
+                    <div class="bg-white p-6 rounded-2xl border border-border-sage shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-base font-bold text-dark-slate">สถิติและพฤติกรรม</h3>
+                                <p class="text-xs text-muted-green">ความต่อเนื่องทำให้คุณเติบโตสู่ทางปัญญาอย่างสดใส</p>
+                            </div>
+                            <div class="flex bg-mint-bg p-1 rounded-xl border border-border-sage text-xs font-bold">
+                                <button class="px-3 py-1 rounded-lg bg-sage-dark text-white">สัปดาห์นี้</button>
+                                <button class="px-3 py-1 rounded-lg text-muted-green">เดือนนี้</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-mint-bg p-4 rounded-xl border border-border-sage flex items-center gap-3">
+                                <i class="fa-solid fa-book-open text-sage-dark text-xl"></i>
+                                <div>
+                                    <span class="text-[11px] text-muted-green block">เฉลี่ยต่อวัน</span>
+                                    <span class="font-bold text-sm text-dark-slate">48 หน้า/วัน</span>
+                                </div>
+                            </div>
+                            <div class="bg-mint-bg p-4 rounded-xl border border-border-sage flex items-center gap-3">
+                                <i class="fa-regular fa-clock text-sage-dark text-xl"></i>
+                                <div>
+                                    <span class="text-[11px] text-muted-green block">เวลารวมสัปดาห์นี้</span>
+                                    <span class="font-bold text-sm text-dark-slate">4 ชม. 20 นาที</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bar Graph -->
+                        <div class="pt-2">
+                            <span class="text-xs font-bold text-dark-slate block mb-3">กราฟจำนวนหน้าที่อ่าน (หน้า)</span>
+                            <div class="h-36 flex items-end justify-between gap-3 px-4 border-b border-border-sage pb-2">
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 55%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">จ</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 45%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">อ</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 60%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">พ</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 25%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">พฤ</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 75%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">ศ</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-dark rounded-t-lg" style="height: 90%;"></div>
+                                    <span class="text-[10px] font-bold text-sage-dark">ส</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <div class="w-full bg-sage-light rounded-t-lg" style="height: 65%;"></div>
+                                    <span class="text-[10px] font-bold text-muted-green">อา</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Timeline Feed (Matching Image 4) -->
+                <div class="bg-white p-6 rounded-2xl border border-border-sage shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-border-sage pb-3">
+                        <h3 class="text-sm font-bold text-dark-slate flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-sage-primary"></i> บันทึกประวัติย้อนหลัง
+                        </h3>
+                        <span class="text-[11px] text-sage-dark font-bold cursor-pointer hover:underline">ดูทั้งหมด</span>
+                    </div>
+
+                    <div class="space-y-4" id="tracker-history-timeline">
+                        <!-- Item 1 -->
+                        <div class="p-4 rounded-xl bg-mint-bg border border-border-sage space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-dark-slate">วันนี้, 14:30 น.</span>
+                                <span class="text-[10px] bg-white px-2 py-0.5 rounded-md text-sage-dark font-bold">30 นาที</span>
+                            </div>
+                            <p class="text-xs font-bold text-dark-slate">อ่าน 'เมื่อแมวตัวนั้นหายไปจากโลกนี้'</p>
+                            <p class="text-xs text-sage-dark font-semibold">🟢 +35 หน้า (หน้า 107 → 142)</p>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="p-4 rounded-xl bg-mint-bg border border-border-sage space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-dark-slate">เมื่อวานนี้, 21:15 น.</span>
+                                <span class="text-[10px] bg-white px-2 py-0.5 rounded-md text-sage-dark font-bold">25 นาที</span>
+                            </div>
+                            <p class="text-xs font-bold text-dark-slate">อ่าน 'เมื่อแมวตัวนั้นหายไปจากโลกนี้'</p>
+                            <p class="text-xs text-sage-dark font-semibold">🟢 +28 หน้า (หน้า 79 → 107)</p>
+                        </div>
+
+                        <!-- Item 3 -->
+                        <div class="p-4 rounded-xl bg-mint-bg border border-border-sage space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-dark-slate">23 ม.ค., 20:00 น.</span>
+                                <span class="text-[10px] bg-white px-2 py-0.5 rounded-md text-sage-dark font-bold">40 นาที</span>
+                            </div>
+                            <p class="text-xs font-bold text-dark-slate">อ่าน 'โต๊ะโตะจัง เด็กหญิงข้างหน้าต่าง'</p>
+                            <p class="text-xs text-sage-dark font-semibold">🟢 +40 หน้า (หน้า 120 → 160)</p>
+                        </div>
+
+                        <!-- Item 4 Finished -->
+                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-emerald-900">21 ม.ค., 22:30 น.</span>
+                                <span class="text-[10px] bg-white px-2 py-0.5 rounded-md text-emerald-800 font-bold">สำเร็จ 🎉</span>
+                            </div>
+                            <p class="text-xs font-bold text-emerald-950">จบเล่ม 'ปาฏิหาริย์ร้านชำของคุณนามิยะ'</p>
+                            <p class="text-[11px] text-emerald-800">จนสมบูรณ์ 504 หน้า • ประทับใจมาก ให้ 5 ดาว</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 4: ความสำเร็จ (ACHIEVEMENTS - IMAGE 3) ================= -->
+        <section id="view-achievements" class="space-y-6 hidden">
+            <!-- Top Profile Level Banner -->
+            <div class="bg-gradient-to-r from-mint-bg to-sage-light p-6 rounded-2xl border border-border-sage shadow-sm space-y-4">
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-sage-dark text-white flex items-center justify-center font-bold text-2xl shadow-sm">
+                            5
+                        </div>
+                        <div>
+                            <span class="text-xs text-muted-green font-medium">ระบบระดับการอ่าน</span>
+                            <h1 class="text-xl sm:text-2xl font-bold text-dark-slate">เลเวล 5: นักอ่านตัวยง</h1>
+                            <p class="text-xs text-sage-dark font-semibold">Avid Reader - เส้นทางทางความคิด</p>
+                        </div>
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-xl border border-border-sage text-xs font-bold text-sage-dark">
+                        ✨ XP สะสม 3,750
+                    </div>
+                </div>
+
+                <!-- Level Progress -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-bold">
+                        <span class="text-muted-green">ความคืบหน้าเลเวล 5</span>
+                        <span class="text-sage-dark">750 / 1,000 XP (75%)</span>
+                    </div>
+                    <div class="w-full h-3 bg-white rounded-full overflow-hidden border border-border-sage">
+                        <div class="bg-sage-dark h-full rounded-full" style="width: 75%;"></div>
+                    </div>
+                    <p class="text-[11px] text-muted-green text-right">เหลืออีก 250 XP เพื่อเลื่อนเป็น Master Reader</p>
+                </div>
+
+                <!-- XP Badges Quick Summary -->
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div class="bg-white p-4 rounded-xl border border-border-sage flex items-center gap-3">
+                        <i class="fa-solid fa-medal text-amber-500 text-2xl"></i>
+                        <div>
+                            <span class="text-[11px] text-muted-green block">เหรียญที่ครอบครอง</span>
+                            <span class="font-bold text-sm text-dark-slate">8 / 18 เหรียญ</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-border-sage flex items-center gap-3">
+                        <i class="fa-solid fa-trophy text-sage-dark text-2xl"></i>
+                        <div>
+                            <span class="text-[11px] text-muted-green block">คะแนนความสำเร็จ</span>
+                            <span class="font-bold text-sm text-dark-slate">1,450 แต้ม</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div class="flex items-center gap-2 border-b border-border-sage pb-3">
+                <button class="bg-sage-dark text-white px-4 py-2 rounded-xl text-xs font-bold">ทั้งหมด (18)</button>
+                <button class="bg-mint-bg text-muted-green hover:text-dark-slate px-4 py-2 rounded-xl text-xs font-bold border border-border-sage">เป้าหมายจำนวนเล่ม</button>
+                <button class="bg-mint-bg text-muted-green hover:text-dark-slate px-4 py-2 rounded-xl text-xs font-bold border border-border-sage">สถิติการอ่าน</button>
+            </div>
+
+            <!-- Unlocked Achievements Grid -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-dark-slate flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-sage-primary"></i> เหรียญที่ปลดล็อกแล้ว (4 เหรียญล่าสุด)
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Badge 1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-start justify-between">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-sage-light text-sage-dark flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-sage-dark font-bold bg-sage-light px-2 py-0.5 rounded-md">✓ ปลดล็อกแล้ว</span>
+                                <h3 class="font-bold text-dark-slate text-sm mt-1">หนอนหนังสือระดับ 1</h3>
+                                <p class="text-xs text-muted-green">อ่านจบครบ 10 เล่ม</p>
+                                <span class="text-[10px] text-muted-green block mt-1">ปลดล็อกเมื่อ 15 ม.ค. 2025</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-sage-dark bg-mint-bg px-2.5 py-1 rounded-lg border border-border-sage">+100 XP</span>
+                    </div>
+
+                    <!-- Badge 2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-start justify-between">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-sage-light text-sage-dark flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-sage-dark font-bold bg-sage-light px-2 py-0.5 rounded-md">✓ ปลดล็อกแล้ว</span>
+                                <h3 class="font-bold text-dark-slate text-sm mt-1">นักพลิกหน้า 1,000 หน้า</h3>
+                                <p class="text-xs text-muted-green">อ่านสะสมครบ 1,000 หน้า</p>
+                                <span class="text-[10px] text-muted-green block mt-1">ปลดล็อกเมื่อ 20 ธ.ค. 2024</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-sage-dark bg-mint-bg px-2.5 py-1 rounded-lg border border-border-sage">+250 XP</span>
+                    </div>
+
+                    <!-- Badge 3 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-start justify-between">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-sage-light text-amber-600 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-sage-dark font-bold bg-sage-light px-2 py-0.5 rounded-md">✓ ปลดล็อกแล้ว</span>
+                                <h3 class="font-bold text-dark-slate text-sm mt-1">ไฟไม่มอด 7 วัน</h3>
+                                <p class="text-xs text-muted-green">อ่านต่อเนื่องกัน 7 วัน</p>
+                                <span class="text-[10px] text-muted-green block mt-1">ปลดล็อกเมื่อ 10 ม.ค. 2025</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-sage-dark bg-mint-bg px-2.5 py-1 rounded-lg border border-border-sage">+150 XP</span>
+                    </div>
+
+                    <!-- Badge 4 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex items-start justify-between">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-sage-light text-sage-dark flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-compass"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-sage-dark font-bold bg-sage-light px-2 py-0.5 rounded-md">✓ ปลดล็อกแล้ว</span>
+                                <h3 class="font-bold text-dark-slate text-sm mt-1">นักสำรวจวรรณกรรม</h3>
+                                <p class="text-xs text-muted-green">อ่านหนังสือครอบคลุม 5 หมวดหมู่ที่แตกต่าง</p>
+                                <span class="text-[10px] text-muted-green block mt-1">ปลดล็อกแล้ว (สมบูรณ์แบบ)</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-sage-dark bg-mint-bg px-2.5 py-1 rounded-lg border border-border-sage">+200 XP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In Progress / Locked Badges Grid -->
+            <div class="space-y-4 pt-4">
+                <h2 class="text-lg font-bold text-dark-slate flex items-center gap-2">
+                    <i class="fa-solid fa-spinner text-sage-dark"></i> กำลังดำเนินการ & ป้ายที่ล็อกอยู่
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Progress Badge 1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center text-lg shrink-0">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-dark-slate text-sm">หนอนหนังสือระดับ 2</h3>
+                                    <p class="text-xs text-muted-green">อ่านจบครบ 25 เล่ม</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400">+300 XP</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span class="text-muted-green">18 / 25 เล่ม</span>
+                                <span class="text-sage-dark">72%</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-sage-dark h-full rounded-full" style="width: 72%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Badge 2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center text-lg shrink-0">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-dark-slate text-sm">นักอ่านมาราธอน 5,000 หน้า</h3>
+                                    <p class="text-xs text-muted-green">อ่านสะสมครบ 5,000 หน้า</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400">+500 XP</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span class="text-muted-green">4,520 / 5,000 หน้า</span>
+                                <span class="text-sage-dark">90%</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-sage-dark h-full rounded-full" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Badge 3 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center text-lg shrink-0">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-dark-slate text-sm">ไฟลุกโชน 30 วัน</h3>
+                                    <p class="text-xs text-muted-green">อ่านต่อเนื่องกัน 30 วัน</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400">+400 XP</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span class="text-muted-green">14 / 30 วัน</span>
+                                <span class="text-sage-dark">46%</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-sage-dark h-full rounded-full" style="width: 46%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Badge 4 -->
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center text-lg shrink-0">
+                                    <i class="fa-solid fa-moon"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-dark-slate text-sm">ราตรีไม่หลับใหล</h3>
+                                    <p class="text-xs text-muted-green">บันทึกการอ่านหลังเที่ยงคืนครบ 5 ครั้ง</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-gray-400">+150 XP</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span class="text-muted-green">2 / 5 ครั้ง</span>
+                                <span class="text-sage-dark">40%</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-sage-dark h-full rounded-full" style="width: 40%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Motivational Box matching Image 3 -->
+            <div class="bg-mint-bg p-6 rounded-2xl border border-border-sage text-center space-y-2">
+                <div class="w-10 h-10 rounded-full bg-white text-sage-dark flex items-center justify-center text-lg font-bold mx-auto shadow-sm">
+                    🌱
+                </div>
+                <h3 class="font-bold text-dark-slate text-base">การอ่านคือการบ่มเพาะ</h3>
+                <p class="text-xs text-muted-green max-w-md mx-auto leading-relaxed">
+                    ไม่จำเป็นต้องเร่งรีบ ทุกหน้ากระดาษที่เปิดอ่านคือก้าวที่งดงามของจิตใจ
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-border-sage py-6 text-center text-xs text-muted-green mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-leaf text-sage-primary"></i>
+                <span class="font-serif font-bold text-dark-slate">MyLilBook Desktop Platform</span>
+            </div>
+            <p>ออกแบบด้วยสุนทรียศาสตร์ Soft Sage Green & Clean White</p>
+        </div>
+    </footer>
+
+
+    <!-- ================= ADD BOOK MODAL ================= -->
+    <div id="modal-add-book" class="modal hidden-modal fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 border border-border-sage shadow-xl">
+            <div class="flex justify-between items-center border-b border-border-sage pb-3">
+                <h3 class="font-bold text-lg text-dark-slate">เพิ่มหนังสือใหม่เข้าคลัง</h3>
+                <button onclick="closeAddBookModal()" class="text-muted-green hover:text-dark-slate p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="form-add" onsubmit="handleFormAdd(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-dark-slate mb-1">ชื่อหนังสือ *</label>
+                    <input type="text" id="add-title" required placeholder="ปาฏิหาริย์ร้านชำของคุณนามิยะ" class="w-full px-4 py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-dark-slate mb-1">ผู้แต่ง *</label>
+                        <input type="text" id="add-author" required placeholder="ฮิงาชิโนะ เคโงะ" class="w-full px-4 py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-dark-slate mb-1">หมวดหมู่</label>
+                        <select id="add-genre" class="w-full px-3 py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none">
+                            <option value="วรรณกรรมแปล">วรรณกรรมแปล</option>
+                            <option value="คลาสสิก">คลาสสิก</option>
+                            <option value="พัฒนาตนเอง">พัฒนาตนเอง</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-dark-slate mb-1">จำนวนหน้าทั้งหมด *</label>
+                        <input type="number" id="add-pages" required placeholder="320" class="w-full px-4 py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-dark-slate mb-1">สถานะ</label>
+                        <select id="add-status" class="w-full px-3 py-2.5 rounded-xl border border-border-sage bg-mint-bg text-xs focus:outline-none">
+                            <option value="Reading">กำลังอ่าน</option>
+                            <option value="Want to Read">อยากอ่าน</option>
+                            <option value="Completed">อ่านจบแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t border-border-sage">
+                    <button type="button" onclick="closeAddBookModal()" class="px-4 py-2 rounded-xl border border-border-sage text-xs font-bold text-muted-green">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-sage-dark hover:bg-sage-hover text-white text-xs font-bold shadow-sm">บันทึกหนังสือ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // Library Dataset matching Images 1 & 2
+        let libraryBooks = [
+            {
+                id: 1,
+                title: "ปาฏิหาริย์ร้านชำของคุณนามิยะ",
+                author: "ฮิงาชิโนะ เคโงะ",
+                genre: "วรรณกรรมแปล",
+                status: "Completed",
+                currentPage: 504,
+                totalPages: 504,
+                rating: 5.0,
+                reviewCount: "อ่านจบแล้ว",
+                quote: "อบอุ่นหัวใจและนำทางชีวิต...",
+                cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 2,
+                title: "เมื่อแมวตัวนั้นหายไปจากโลกนี้",
+                author: "เก็นกิ คาวามูระ",
+                genre: "วรรณกรรมแปล",
+                status: "Reading",
+                currentPage: 142,
+                totalPages: 215,
+                rating: 4.8,
+                reviewCount: "กำลังอ่าน 66%",
+                quote: "ตั้งคำถามถึงคุณค่าสิ่งรอบตัว",
+                cover: "https://images.unsplash.com/photo-1532012164546-f43249488629?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 3,
+                title: "เจ้าชายน้อย (The Little Prince)",
+                author: "อองตวน เดอ แซงเตกซูเปรี",
+                genre: "คลาสสิก",
+                status: "Completed",
+                currentPage: 160,
+                totalPages: 160,
+                rating: 5.0,
+                reviewCount: "อ่านจบแล้ว",
+                quote: "สิ่งสำคัญมองไม่เห็นด้วยตา...",
+                cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 4,
+                title: "Atomic Habits เพราะชีวิตดีได้กว่าที่เป็น",
+                author: "James Clear",
+                genre: "พัฒนาตนเอง",
+                status: "Want to Read",
+                currentPage: 0,
+                totalPages: 320,
+                rating: 4.9,
+                reviewCount: "อยากอ่าน (370 คน)",
+                quote: "การเปลี่ยนแปลงเล็กๆ ที่สร้างผลลัพธ์ใหญ่",
+                cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 5,
+                title: "โต๊ะโตะจัง เด็กหญิงข้างหน้าต่าง",
+                author: "เท็ตสึโกะ คุโรยานางิ",
+                genre: "วรรณกรรมแปล",
+                status: "Reading",
+                currentPage: 84,
+                totalPages: 240,
+                rating: 4.7,
+                reviewCount: "กำลังอ่าน 35%",
+                quote: "ความไร้เดียงสาและการเรียนรู้",
+                cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400"
+            },
+            {
+                id: 6,
+                title: "The Midnight Library",
+                author: "Matt Haig",
+                genre: "วรรณกรรมแปล",
+                status: "Completed",
+                currentPage: 300,
+                totalPages: 300,
+                rating: 4.8,
+                reviewCount: "อ่านจบแล้ว",
+                quote: "ระหว่างความตายและชีวิต...",
+                cover: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400"
+            }
+        ];
+
+        let currentStatusFilter = 'ALL';
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            const tabs = ['home', 'library', 'tracker', 'achievements'];
+            tabs.forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+
+                if (t === tabName) {
+                    view.classList.remove('hidden');
+                    if (navBtn) navBtn.classList.add('active');
+                } else {
+                    view.classList.add('hidden');
+                    if (navBtn) navBtn.classList.remove('active');
+                }
+            });
+
+            if (tabName === 'library') renderLibraryGrid();
+        }
+
+        // Render Library Cards matching Image 1 exact components
+        function renderLibraryGrid() {
+            const container = document.getElementById('library-grid');
+            const searchVal = document.getElementById('lib-search').value.toLowerCase();
+            const genreVal = document.getElementById('select-genre').value;
+
+            const filtered = libraryBooks.filter(b => {
+                const matchStatus = currentStatusFilter === 'ALL' || b.status === currentStatusFilter;
+                const matchGenre = genreVal === 'ALL' || b.genre === genreVal;
+                const matchSearch = b.title.toLowerCase().includes(searchVal) || b.author.toLowerCase().includes(searchVal);
+                return matchStatus && matchGenre && matchSearch;
+            });
+
+            container.innerHTML = filtered.map(b => {
+                const percent = Math.round((b.currentPage / b.totalPages) * 100);
+                let badgeText = "อ่านจบแล้ว";
+                let badgeBg = "bg-sage-dark text-white";
+
+                if (b.status === 'Reading') {
+                    badgeText = `กำลังอ่าน ${percent}%`;
+                    badgeBg = "bg-sage-light text-sage-dark font-bold";
+                } else if (b.status === 'Want to Read') {
+                    badgeText = "อยากอ่าน";
+                    badgeBg = "bg-amber-100 text-amber-800 font-bold";
+                }
+
+                return `
+                    <div class="bg-white p-5 rounded-2xl border border-border-sage shadow-sm flex flex-col justify-between book-card">
+                        <div class="space-y-3">
+                            <div class="relative rounded-xl overflow-hidden bg-mint-bg border border-border-sage h-52 flex items-center justify-center">
+                                <img src="${b.cover}" alt="${b.title}" class="w-full h-full object-cover">
+                                <span class="absolute top-2 right-2 text-[10px] px-2.5 py-1 rounded-full ${badgeBg}">${badgeText}</span>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-sage-dark bg-mint-bg px-2 py-0.5 rounded-md inline-block border border-border-sage">${b.genre}</span>
+                                <h3 class="font-bold text-dark-slate text-sm line-clamp-1">${b.title}</h3>
+                                <p class="text-xs text-muted-green">${b.author}</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-border-sage mt-3 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <div class="flex items-center text-gold-star gap-1 font-bold">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span>${b.rating}</span>
+                                </div>
+                                <span class="text-muted-green text-[11px]">${b.currentPage}/${b.totalPages} หน้า</span>
+                            </div>
+
+                            ${b.status === 'Reading' ? `
+                                <div class="w-full h-2 bg-sage-light rounded-full overflow-hidden">
+                                    <div class="bg-sage-dark h-full rounded-full" style="width: ${percent}%;"></div>
+                                </div>
+                            ` : ''}
+
+                            <p class="text-[11px] text-muted-green italic truncate">"${b.quote}"</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterLibStatus(status) {
+            currentStatusFilter = status;
+            document.querySelectorAll('.lib-pill').forEach(btn => {
+                btn.classList.remove('bg-sage-dark', 'text-white');
+                btn.classList.add('bg-mint-bg', 'text-muted-green');
+            });
+            const activeBtn = document.getElementById(`pill-${status}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-sage-dark', 'text-white');
+                activeBtn.classList.remove('bg-mint-bg', 'text-muted-green');
+            }
+            renderLibraryGrid();
+        }
+
+        // Stepper functionality
+        function adjustPage(delta) {
+            const input = document.getElementById('tracker-page-input');
+            let val = parseInt(input.value) || 0;
+            val = Math.max(0, Math.min(215, val + delta));
+            input.value = val;
+        }
+
+        // Save Tracker Log Entry
+        function saveTrackerLog() {
+            const val = document.getElementById('tracker-page-input').value;
+            const note = document.getElementById('tracker-note').value;
+
+            alert(`บันทึกการอ่านสำเร็จ! อ่านถึงหน้าที่ ${val}`);
+            document.getElementById('tracker-note').value = '';
+        }
+
+        // Add Book Form Modal
+        function openAddBookModal() {
+            document.getElementById('modal-add-book').classList.remove('hidden-modal');
+        }
+        function closeAddBookModal() {
+            document.getElementById('modal-add-book').classList.add('hidden-modal');
+        }
+
+        function handleFormAdd(e) {
+            e.preventDefault();
+            const title = document.getElementById('add-title').value;
+            const author = document.getElementById('add-author').value;
+            const genre = document.getElementById('add-genre').value;
+            const pages = parseInt(document.getElementById('add-pages').value);
+            const status = document.getElementById('add-status').value;
+
+            libraryBooks.unshift({
+                id: Date.now(),
+                title,
+                author,
+                genre,
+                status,
+                currentPage: status === 'Completed' ? pages : 0,
+                totalPages: pages,
+                rating: 5.0,
+                reviewCount: "เพิ่งเพิ่ม",
+                quote: "หนังสือเล่มใหม่ในคลัง",
+                cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400"
+            });
+
+            closeAddBookModal();
+            document.getElementById('form-add').reset();
+            renderLibraryGrid();
+            switchTab('library');
+        }
+
+        // Initial render
+        window.onload = function() {
+            renderLibraryGrid();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookNook - Design System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        /* Color Palette */
+        --bg-main: #ffffff;
+        --bg-subtle: #f4f8f5;
+        --bg-card: #ffffff;
+
+        --primary: #8eaf9d;
+        --primary-hover: #799c89;
+        --primary-light: #e2ece5;
+        --primary-dark: #4a6b59;
+
+        --text-main: #2c3e35;
+        --text-muted: #6c7d73;
+        --text-light: #9eafa5;
+
+        --border-color: #e1e8e3;
+        --shadow-sm: 0 2px 4px rgba(44, 62, 53, 0.04);
+        --shadow-md: 0 4px 12px rgba(44, 62, 53, 0.08);
+
+        /* Typography */
+        --font-sans: "Plus Jakarta Sans", "Sarabun", sans-serif;
+        --font-serif: "Playfair Display", serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--bg-subtle);
+        color: var(--text-main);
+        line-height: 1.6;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        background: var(--bg-main);
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: var(--shadow-md);
+      }
+
+      h1 {
+        font-family: var(--font-serif);
+        font-size: 2.5rem;
+        color: var(--primary-dark);
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        color: var(--text-muted);
+        margin-bottom: 40px;
+        font-size: 1.1rem;
+      }
+
+      section {
+        margin-bottom: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* 1. Color Swatches */
+      .color-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .color-card {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+      }
+
+      .color-swatch {
+        height: 90px;
+      }
+
+      .color-info {
+        padding: 12px;
+      }
+
+      .color-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .color-hex {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      /* 2. Typography */
+      .type-sample {
+        margin-bottom: 20px;
+      }
+
+      .font-serif-sample {
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        color: var(--text-main);
+      }
+
+      .font-sans-sample {
+        font-family: var(--font-sans);
+        font-size: 1.1rem;
+      }
+
+      /* 3. Buttons */
+      .component-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+
+      .btn-secondary {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+      }
+
+      .btn-secondary:hover {
+        background-color: #d3e2d7;
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary-dark);
+      }
+
+      .btn-outline:hover {
+        background-color: var(--bg-subtle);
+      }
+
+      /* 4. Form Controls */
+      .input-field {
+        padding: 10px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: var(--font-sans);
+        outline: none;
+        width: 100%;
+        max-width: 300px;
+        transition: border-color 0.2s ease;
+      }
+
+      .input-field:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(142, 175, 157, 0.2);
+      }
+
+      /* 5. Progress Bar */
+      .progress-container {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 10px;
+        background-color: var(--primary-light);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: var(--primary);
+        border-radius: 99px;
+        width: 65%; /* Sample value */
+      }
+
+      /* 6. Cards & Badges */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: var(--shadow-sm);
+        max-width: 320px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .badge-unlocked {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+      }
+
+      .badge-locked {
+        background-color: #eaeaea;
+        color: #888888;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>BookNook Design System</h1>
+      <p class="subtitle">
+        ระบบการออกแบบสำหรับเว็บแอปพลิเคชันบันทึกการอ่านหนังสือ (Soft Sage Green
+        & Clean White)
+      </p>
+
+      <!-- Color Palette -->
+      <section>
+        <h2>🎨 ชุดสี (Color Palette)</h2>
+        <div class="color-grid">
+          <div class="color-card">
+            <div
+              class="color-swatch"
+              style="
+                background: #ffffff;
+                border-bottom: 1px solid var(--border-color);
+              "
+            ></div>
+            <div class="color-info">
+              <div class="color-name">Clean White</div>
+              <div class="color-hex">#FFFFFF (Main Background)</div>
+            </div>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: #f4f8f5"></div>
+            <div class="color-info">
+              <div class="color-name">Mint Tint</div>
+              <div class="color-hex">#F4F8F5 (Card BG)</div>
+            </div>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: #8eaf9d"></div>
+            <div class="color-info">
+              <div class="color-name">Sage Primary</div>
+              <div class="color-hex">#8EAF9D (Primary Accent)</div>
+            </div>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: #e2ece5"></div>
+            <div class="color-info">
+              <div class="color-name">Sage Light</div>
+              <div class="color-hex">#E2ECE5 (Subtle UI)</div>
+            </div>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: #2c3e35"></div>
+            <div class="color-info">
+              <div class="color-name">Dark Charcoal</div>
+              <div class="color-hex">#2C3E35 (Main Text)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Typography -->
+      <section>
+        <h2>✍️ แบบอักษร (Typography)</h2>
+        <div class="type-sample">
+          <p class="font-serif-sample">
+            Playfair Display — The Midnight Library
+          </p>
+          <small style="color: var(--text-muted)"
+            >ใช้สำหรับชื่อหนังสือ และหัวข้อหลัก (Headings)</small
+          >
+        </div>
+        <div class="type-sample">
+          <p class="font-sans-sample">
+            Plus Jakarta Sans / Sarabun — อัปเดตความคืบหน้าการอ่าน 75%
+          </p>
+          <small style="color: var(--text-muted)"
+            >ใช้สำหรับ UI Elements, ข้อความทั่วไป และปุ่มกด</small
+          >
+        </div>
+      </section>
+
+      <!-- Buttons -->
+      <section>
+        <h2>🔘 ปุ่มกด (Buttons)</h2>
+        <div class="component-group">
+          <button class="btn btn-primary">บันทึกหนังสือ</button>
+          <button class="btn btn-secondary">อัปเดตหน้าอ่าน</button>
+          <button class="btn btn-outline">ดูทั้งหมด</button>
+        </div>
+      </section>
+
+      <!-- Form Elements -->
+      <section>
+        <h2>🔍 ช่องกรอกข้อมูล (Form Elements)</h2>
+        <div class="component-group">
+          <input
+            type="text"
+            class="input-field"
+            placeholder="ค้นหาชื่อหนังสือ หรือผู้แต่ง..."
+          />
+        </div>
+      </section>
+
+      <!-- Progress Tracker -->
+      <section>
+        <h2>📊 แถบติดตามความคืบหน้า (Progress Indicator)</h2>
+        <div class="progress-container">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 6px;
+              font-size: 0.9rem;
+            "
+          >
+            <span>อ่านไปแล้ว 240 / 320 หน้า</span>
+            <span style="font-weight: 600; color: var(--primary-dark)"
+              >75%</span
+            >
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Badges & Cards -->
+      <section>
+        <h2>🏆 ป้ายความสำเร็จ & การ์ด (Badges & Card)</h2>
+        <div class="component-group">
+          <div class="card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+              "
+            >
+              <span class="badge badge-unlocked">🔓 ปลดล็อกแล้ว</span>
+              <small style="color: var(--text-muted)">10/10 เล่ม</small>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 4px">Bookworm</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted)">
+              อ่านหนังสือครบ 10 เล่มในปีนี้
+            </p>
+          </div>
+
+          <div class="card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+              "
+            >
+              <span class="badge badge-locked">🔒 ยังไม่ปลดล็อก</span>
+              <small style="color: var(--text-muted)">1,200/5,000 หน้า</small>
+            </div>
+            <h3
+              style="
+                font-size: 1.1rem;
+                margin-bottom: 4px;
+                color: var(--text-muted);
+              "
+            >
+              Page Turner
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted)">
+              อ่านหนังสือสะสมครบ 5,000 หน้า
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
